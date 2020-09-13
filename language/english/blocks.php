@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/global.php';
+xoops_loadLanguage('blocks', 'system');
 define('_MB_TADNEWS_CONTENT_BLOCK_EDIT_BITEM1', 'How many columns in a row?');
 
 define('_MB_TADNEWS_RE_EDIT_BITEM0', 'Numbers');
@@ -114,3 +115,4 @@ define('_MB_TADNEWS_BAR_START_DAY', 'News >= this date');
 define('_MB_TADNEWS_BAR_END_DAY', 'News <= this date');
 
 define('_MB_TADNEWS_SEARCHBAR', 'Do you join a news search tool?');
+define('_MB_TADNEWS_TAB_FONT_SIZE', 'Tab title size');

@@ -1,14 +1,20 @@
 <?php
+use XoopsModules\Tadnews\Tadnews;
+if (!class_exists('XoopsModules\Tadnews\Tadnews')) {
+    require XOOPS_ROOT_PATH . '/modules/tadnews/preloads/autoloader.php';
+}
 use XoopsModules\Tadtools\Utility;
+if (!class_exists('XoopsModules\Tadtools\Utility')) {
+    require XOOPS_ROOT_PATH . '/modules/Tadtools/preloads/autoloader.php';
+}
 
-require_once XOOPS_ROOT_PATH . '/modules/tadnews/class/tadnews.php';
-$tadnews = new tadnews();
+$Tadnews = new Tadnews();
 require_once __DIR__ . '/block_function.php';
 
 //取得路徑
 function get_tadnews_cate_path($the_ncsn = '', $include_self = true)
 {
-    global $xoopsDB, $tadnews;
+    global $xoopsDB, $Tadnews;
 
     $arr[0]['ncsn'] = '';
     $arr[0]['nc_title'] = "<i class='fa fa-home'></i>";
@@ -33,7 +39,7 @@ function get_tadnews_cate_path($the_ncsn = '', $include_self = true)
                         if (!$include_self and $ncsn == $the_ncsn) {
                             break;
                         }
-                        $arr[$ncsn] = $tadnews->get_tad_news_cate($ncsn);
+                        $arr[$ncsn] = $Tadnews->get_tad_news_cate($ncsn);
                         $arr[$ncsn]['sub'] = get_tadnews_sub_cate($ncsn);
                         // die(var_dump(get_tadnews_sub_cate($ncsn)));
                         if ($ncsn == $the_ncsn) {
@@ -108,7 +114,7 @@ function preview_newspaper($npsn = '')
     $head = str_replace('{D}', mb_substr($np['np_date'], 0, 10), $head);
     $head = str_replace('{T}', $np['np_title'], $head);
 
-    $filename = _TADNEWS_NSP_THEMES_PATH . "/{$themes}/index.html";
+    $filename = XOOPS_ROOT_PATH . "/uploads/tadnews/themes/{$themes}/index.html";
     // die('filename: ' . $filename);
     $handle = fopen($filename, 'rb');
     $contents = '';
@@ -116,7 +122,7 @@ function preview_newspaper($npsn = '')
         $contents .= fread($handle, 8192);
     }
     fclose($handle);
-    $main = str_replace('{TNP_THEME}', _TADNEWS_NSP_THEMES_URL . "/{$themes}/", $contents);
+    $main = str_replace('{TNP_THEME}', XOOPS_URL . "/uploads/tadnews/themes/{$themes}/", $contents);
     $main = str_replace('{TNP_CSS}', '', $main);
     $main = str_replace('{TNP_TITLE}', $title, $main);
     $char = _CHARSET;
@@ -129,22 +135,22 @@ function preview_newspaper($npsn = '')
     return $main;
 }
 
-function tad_news_cate_form($ncsn = '')
+function tad_news_cate_form($ncsn = '', $not_news = '0')
 {
-    global $xoopsDB, $xoopsTpl, $xoopsOption, $xoopsModuleConfig, $tadnews, $isAdmin;
+    global $xoopsDB, $xoopsTpl, $xoopsOption, $xoopsModuleConfig, $Tadnews, $isAdmin;
     require_once XOOPS_ROOT_PATH . '/class/xoopsformloader.php';
 
-    $ok_cat = $tadnews->chk_user_cate_power('post');
+    $ok_cat = $Tadnews->chk_user_cate_power('post');
     $ncsn = (int) $ncsn;
     $isOwner = in_array($ncsn, $ok_cat) ? true : false;
 
     if (!$isOwner and !$isAdmin) {
-        redirect_header('index.php', 3, _TADNEWS_NO_ADMIN_POWER);
+        redirect_header('index.php', 3, _TADNEWS_NO_ADMIN_POWER . '<br>' . __FILE__ . ':' . __LINE__);
     }
 
     //抓取預設值
     if (!empty($ncsn)) {
-        $DBV = $tadnews->get_tad_news_cate($ncsn);
+        $DBV = $Tadnews->get_tad_news_cate($ncsn);
         $xoopsTpl->assign('cate', $DBV);
     } else {
         $DBV = [];
@@ -155,12 +161,12 @@ function tad_news_cate_form($ncsn = '')
     $ncsn = (!isset($DBV['ncsn'])) ? $ncsn : $DBV['ncsn'];
     $of_ncsn = (!isset($DBV['of_ncsn'])) ? '' : $DBV['of_ncsn'];
     $nc_title = (!isset($DBV['nc_title'])) ? '' : $DBV['nc_title'];
-    $sort = (!isset($DBV['sort'])) ? $tadnews->get_max_sort() : $DBV['sort'];
+    $sort = (!isset($DBV['sort'])) ? $Tadnews->get_max_sort() : $DBV['sort'];
     $enable_group = (!isset($DBV['enable_group'])) ? '' : explode(',', $DBV['enable_group']);
     $enable_post_group = (!isset($DBV['enable_post_group'])) ? '' : explode(',', $DBV['enable_post_group']);
-    $not_news = (!isset($DBV['not_news'])) ? '' : $DBV['not_news'];
+    $not_news = (!isset($DBV['not_news'])) ? $not_news : $DBV['not_news'];
     $cate_pic = (!isset($DBV['cate_pic'])) ? '' : $DBV['cate_pic'];
-    $pic = (empty($cate_pic)) ? '../images/no_cover.png' : _TADNEWS_CATE_URL . "/{$cate_pic}";
+    $pic = (empty($cate_pic)) ? '../images/no_cover.png' : XOOPS_URL . "/uploads/tadnews/cate/{$cate_pic}";
     $setup = (!isset($DBV['setup'])) ? '' : $DBV['setup'];
     $setup_arr = explode(';', $setup);
     foreach ($setup_arr as $set) {
@@ -171,7 +177,7 @@ function tad_news_cate_form($ncsn = '')
     $cate_op = (empty($ncsn)) ? 'insert_tad_news_cate' : 'update_tad_news_cate';
     //$op="replace_tad_news_cate";
 
-    $cate_select = $tadnews->get_tad_news_cate_option(0, 0, $of_ncsn, true, $ncsn, '1', '0');
+    $cate_select = $Tadnews->get_tad_news_cate_option(0, 0, $of_ncsn, true, $ncsn, '1', $not_news);
 
     $SelectGroup_name = new \XoopsFormSelectGroup('', 'enable_group', false, $enable_group, 3, true);
     $SelectGroup_name->addOption('', _TADNEWS_ALL_OK, false);
@@ -203,14 +209,14 @@ function tad_news_cate_form($ncsn = '')
 //更新tad_news_cate某一筆資料
 function update_tad_news_cate($ncsn = '')
 {
-    global $xoopsDB, $xoopsModuleConfig, $tadnews, $isAdmin;
+    global $xoopsDB, $xoopsModuleConfig, $Tadnews, $isAdmin;
 
-    $ok_cat = $tadnews->chk_user_cate_power('post');
+    $ok_cat = $Tadnews->chk_user_cate_power('post');
     $ncsn = (int) $ncsn;
     $isOwner = in_array($ncsn, $ok_cat) ? true : false;
 
     if (!$isOwner and !$isAdmin) {
-        redirect_header('index.php', 3, _TADNEWS_NO_ADMIN_POWER);
+        redirect_header('index.php', 3, _TADNEWS_NO_ADMIN_POWER . '<br>' . __FILE__ . ':' . __LINE__);
     }
 
     if (empty($_POST['enable_group']) or in_array('', $_POST['enable_group'])) {

@@ -5,41 +5,41 @@ use XoopsModules\Tadtools\Utility;
 //列出所有tad_news資料（$kind="news","page"）
 function list_tad_news($the_ncsn = '0', $kind = 'news', $show_uid = '')
 {
-    global $xoopsDB, $xoopsModule, $xoopsUser, $xoopsOption, $xoopsModuleConfig, $tadnews, $xoopsTpl;
+    global $xoopsDB, $xoopsModule, $xoopsUser, $xoopsOption, $xoopsModuleConfig, $Tadnews, $xoopsTpl;
 
     if (!empty($show_uid)) {
-        $tadnews->set_view_uid($show_uid);
+        $Tadnews->set_view_uid($show_uid);
     }
 
-    $tadnews->set_only_one_ncsn(true);
-    $tadnews->set_news_kind($kind);
-    $tadnews->set_summary(0);
-    $tadnews->set_show_mode('list');
-    $tadnews->set_admin_tool(true);
+    $Tadnews->set_only_one_ncsn(true);
+    $Tadnews->set_news_kind($kind);
+    $Tadnews->set_summary(0);
+    $Tadnews->set_show_mode('list');
+    $Tadnews->set_admin_tool(true);
     if (empty($the_ncsn) or 'news' === $kind) {
-        $tadnews->set_show_num($xoopsModuleConfig['show_num']);
+        $Tadnews->set_show_num($xoopsModuleConfig['show_num']);
     }
-    $tadnews->set_show_enable(0);
-    //$tadnews->set_news_cate_select(1);
-    //$tadnews->set_news_author_select(1);
-    $tadnews->set_news_check_mode(1);
-    $tadnews->chk_user_cate_power('pass');
-    $options = $tadnews->get_tad_news_cate_option(0, 0, '', true, '', '1');
+    $Tadnews->set_show_enable(0);
+    //$Tadnews->set_news_cate_select(1);
+    //$Tadnews->set_news_author_select(1);
+    $Tadnews->set_news_check_mode(1);
+    $Tadnews->chk_user_cate_power('pass');
+    $options = $Tadnews->get_tad_news_cate_option(0, 0, '', true, '', '1');
 
     $page = 'main.php';
 
     if (!empty($the_ncsn)) {
-        $tadnews->set_view_ncsn($the_ncsn);
+        $Tadnews->set_view_ncsn($the_ncsn);
         if ('page' === $kind) {
-            $tadnews->set_sort_tool(1);
+            $Tadnews->set_sort_tool(1);
             $page = 'page.php';
         }
     }
 
-    $tadnews->get_news('assign');
+    $Tadnews->get_news('assign');
     $xoopsTpl->assign('options', $options);
     $xoopsTpl->assign('ncsn', $the_ncsn);
-    $cate = $tadnews->get_tad_news_cate($the_ncsn);
+    $cate = $Tadnews->get_tad_news_cate($the_ncsn);
     $xoopsTpl->assign('cate', $cate);
 
     $SweetAlert = new SweetAlert();
@@ -49,7 +49,7 @@ function list_tad_news($the_ncsn = '0', $kind = 'news', $show_uid = '')
 //列出所有tad_news_cate資料
 function list_tad_news_cate($of_ncsn = 0, $level = 0, $not_news = '0', $i = 0, $catearr = '')
 {
-    global $xoopsDB, $xoopsModule, $xoopsTpl, $tadnews;
+    global $xoopsDB, $xoopsModule, $xoopsTpl, $Tadnews;
     $old_level = $level;
     $left = $level * 18 + 4;
     $level++;
@@ -65,7 +65,7 @@ function list_tad_news_cate($of_ncsn = 0, $level = 0, $not_news = '0', $i = 0, $
         $result2 = $xoopsDB->query($sql2);
         list($counter) = $xoopsDB->fetchRow($result2);
 
-        $pic = (empty($cate_pic)) ? '../images/no_cover.png' : _TADNEWS_CATE_URL . "/{$cate_pic}";
+        $pic = (empty($cate_pic)) ? '../images/no_cover.png' : XOOPS_URL . "/uploads/tadnews/cate/{$cate_pic}";
         $g_txt = Utility::txt_to_group_name($enable_group, _TADNEWS_ALL_OK, ' , ');
         $gp_txt = Utility::txt_to_group_name($enable_post_group, _MA_TADNEWS_ONLY_ROOT, ' , ');
 
@@ -105,11 +105,11 @@ function mk_thumb($ncsn = '', $col_name = '', $width = 100)
     global $xoopsDB;
     require XOOPS_ROOT_PATH . '/modules/tadtools/upload/class.upload.php';
 
-    if (file_exists(_TADNEWS_CATE_DIR . "/{$ncsn}.png")) {
-        unlink(_TADNEWS_CATE_DIR . "/{$ncsn}.png");
+    if (file_exists(XOOPS_ROOT_PATH . "/uploads/tadnews/cate/{$ncsn}.png")) {
+        unlink(XOOPS_ROOT_PATH . "/uploads/tadnews/cate/{$ncsn}.png");
     }
-    //die(_TADNEWS_CATE_DIR);
-    $handle = new upload($_FILES[$col_name]);
+
+    $handle = new \Verot\Upload\Upload($_FILES[$col_name]);
     if ($handle->uploaded) {
         $handle->file_new_name_body = $ncsn;
         $handle->image_convert = 'png';
@@ -117,7 +117,7 @@ function mk_thumb($ncsn = '', $col_name = '', $width = 100)
         $handle->image_x = $width;
         $handle->image_ratio_y = true;
         $handle->file_overwrite = true;
-        $handle->process(_TADNEWS_CATE_DIR);
+        $handle->process(XOOPS_ROOT_PATH . '/uploads/tadnews/cate');
         $handle->auto_create_dir = true;
         if ($handle->processed) {
             $handle->clean();
@@ -175,9 +175,9 @@ function insert_tad_news_cate()
 //刪除tad_news_cate某筆資料資料
 function delete_tad_news_cate($ncsn = '')
 {
-    global $xoopsDB, $tadnews;
+    global $xoopsDB, $Tadnews;
 
-    $cate_org = $tadnews->get_tad_news_cate($ncsn);
+    $cate_org = $Tadnews->get_tad_news_cate($ncsn);
 
     //先找看看底下有無分類，若有將其父分類變成原分類之父分類
     $sql = 'update ' . $xoopsDB->prefix('tad_news_cate') . "  set  of_ncsn = '{$cate_org['of_ncsn']}' where of_ncsn='$ncsn'";
@@ -257,7 +257,7 @@ function move_news($nsn_arr = [], $ncsn = '')
 //批次刪除
 function del_news($nsn_arr = [])
 {
-    global $xoopsDB, $tadnews;
+    global $xoopsDB, $Tadnews;
     if (empty($nsn_arr) or !is_array($nsn_arr)) {
         return;
     }
@@ -265,6 +265,6 @@ function del_news($nsn_arr = [])
     foreach ($nsn_arr as $nsn) {
         $sql = 'delete from ' . $xoopsDB->prefix('tad_news') . " where nsn='{$nsn}'";
         $xoopsDB->queryF($sql) or Utility::web_error($sql, __FILE__, __LINE__);
-        $tadnews->delete_tad_news($nsn);
+        $Tadnews->delete_tad_news($nsn);
     }
 }

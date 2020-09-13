@@ -141,3 +141,7 @@ define('_MD_TADNEWS_CATE_SHOW_TITLE', 'Show News Title');
 define('_MD_TADNEWS_CATE_SHOW_TOOL', 'Show Module Toolbar');
 define('_MD_TADNEWS_CATE_SHOW_COMM', 'Comments Available');
 define('_MD_TADNEWS_CATE_SHOW_NAV', 'Show Navigation Button');
+define('_MD_TADNEWS_CATE_SHOW_PATH', 'Show breadcrumbs');
+
+define('_MD_TADNEWS_DENY_TYPE', '(The following file name is not uploadable: %s)');
+define('_MD_TADNEWS_AND', ', ');

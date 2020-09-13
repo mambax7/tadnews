@@ -307,7 +307,7 @@
 
                     CKEDITOR.replace(editorId, { height: 300 ,
                     toolbar : 'my' ,
-                    contentsCss : ['<{$xoops_url}>/modules/tadtools/bootstrap3/css/bootstrap.css','<{$xoops_url}>/modules/tadtools/css/font-awesome/css/font-awesome.css'],
+                    contentsCss : ['<{$xoops_url}>/modules/tadtools/bootstrap4/css/bootstrap.css','<{$xoops_url}>/modules/tadtools/css/font-awesome/css/font-awesome.css'],
                     extraPlugins: 'syntaxhighlight,dialog,oembed,eqneditor,quicktable,imagerotate,fakeobjects,widget,lineutils,widgetbootstrap,widgettemplatemenu,pagebreak,fontawesome,prism,codesnippet',
                     filebrowserBrowseUrl : '<{$xoops_url}>/modules/tadtools/elFinder/elfinder.php?type=file&mod_dir=tadnews',
                     filebrowserImageBrowseUrl : '<{$xoops_url}>/modules/tadtools/elFinder/elfinder.php?type=image&mod_dir=tadnews',
@@ -373,16 +373,18 @@
         </div>
     </div>
 
+    <{if !$nsn or ($nsn and $cate.not_news=='1')}>
     <div id="page_setup_form" style="margin-top:20px;display: none;">
         <div class="form-group row">
             <div class="col-sm-2">
-                <label><{$smarty.const._MD_TADNEWS_NEWS_FILES}></label>
+                <label><{$smarty.const._MD_TADNEWS_NEWS_FILES}><{$deny_type}></label>
             </div>
             <div class="col-sm-10">
                 <{$page_upform}>
             </div>
         </div>
     </div>
+    <{/if}>
 
 
     <div class="row" style="margin: 30px 0px;">

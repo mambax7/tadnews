@@ -1,5 +1,10 @@
 <?php
+use XoopsModules\Tadnews\Tadnews;
+if (!class_exists('XoopsModules\Tadnews\Tadnews')) {
+    require XOOPS_ROOT_PATH . '/modules/tadnews/preloads/autoloader.php';
+}
 use XoopsModules\Tadtools\Utility;
+
 if (!class_exists('XoopsModules\Tadtools\Utility')) {
     require XOOPS_ROOT_PATH . '/modules/tadtools/preloads/autoloader.php';
 }
@@ -15,16 +20,13 @@ function tadnews_focus_news($options)
         return '';
     }
 
-    require_once XOOPS_ROOT_PATH . '/modules/tadnews/class/tadnews.php';
-
-    $tadnews = new tadnews();
-    $tadnews->set_view_nsn($options[0]);
+    $Tadnews = new Tadnews();
+    $Tadnews->set_view_nsn($options[0]);
     $summary = ('summary' === $options[1]) ? 'page_preak' : 'full';
-    $tadnews->set_summary($summary);
-    $tadnews->set_cover(true, 'db');
-    $tadnews->set_use_star_rating(false);
-    $block = $tadnews->get_news('return');
-
+    $Tadnews->set_summary($summary);
+    $Tadnews->set_cover(true, 'db');
+    $Tadnews->set_use_star_rating(false);
+    $block = $Tadnews->get_news('return');
     return $block;
 }
 
@@ -36,7 +38,7 @@ function tadnews_focus_news_edit($options)
 
     $sql = 'select a.nsn,a.ncsn,a.news_title,a.passwd,a.start_day,b.not_news,b.nc_title from ' . $xoopsDB->prefix('tad_news') . ' as a left join ' . $xoopsDB->prefix('tad_news_cate') . " as b on a.ncsn=b.ncsn where a.enable='1' and a.start_day < '{$today}' and (a.end_day > '{$today}' or a.end_day='0000-00-00 00:00:00')  order by a.start_day desc";
 
-    $result = $xoopsDB->query($sql) or redirect_header(XOOPS_URL, 3, show_error($sql));
+    $result = $xoopsDB->query($sql) or Utility::web_error($sql, __FILE__, __LINE__);
     $option = "<select name='options[0]'>";
     $myts = \MyTextSanitizer::getInstance();
     while (list($nsn, $ncsn, $news_title, $passwd, $start_day, $not_news, $nc_title) = $xoopsDB->fetchRow($result)) {

@@ -12,7 +12,7 @@ require_once __DIR__ . '/admin_function.php';
 //tad_news_tagss編輯表單
 function list_tad_news_tags($def_tag_sn = '')
 {
-    global $xoopsDB, $xoopsTpl, $tadnews;
+    global $xoopsDB, $xoopsTpl, $Tadnews;
 
     $sql = 'SELECT * FROM ' . $xoopsDB->prefix('tad_news_tags') . '';
     $result = $xoopsDB->query($sql) or Utility::web_error($sql, __FILE__, __LINE__);
@@ -22,7 +22,7 @@ function list_tad_news_tags($def_tag_sn = '')
         $tag_amount = (int) $tags_used_amount[$tag_sn];
 
         $tagarr[$i]['tag_sn'] = $tag_sn;
-        $tagarr[$i]['prefix_tag'] = $tadnews->mk_prefix_tag($tag_sn, 'all');
+        $tagarr[$i]['prefix_tag'] = $Tadnews->mk_prefix_tag($tag_sn, 'all');
         $tagarr[$i]['enable'] = $enable;
         $tagarr[$i]['tag_amount'] = $tag_amount;
         $tagarr[$i]['tag'] = $tag;
@@ -42,7 +42,7 @@ function list_tad_news_tags($def_tag_sn = '')
     $xoopsTpl->assign('font_color', $font_color);
     $xoopsTpl->assign('color', $color);
     require_once XOOPS_ROOT_PATH . '/class/xoopsformloader.php';
-    $token = new \XoopsFormHiddenToken('XOOPS_TOKEN', 360);
+    $token = new \XoopsFormHiddenToken();
     $xoopsTpl->assign('XOOPS_TOKEN', $token->render());
     $MColorPicker = new MColorPicker('.color');
     $MColorPicker->render();
@@ -95,7 +95,7 @@ function tags_used_amount()
 
     $sql = 'SELECT prefix_tag,count(prefix_tag) FROM ' . $xoopsDB->prefix('tad_news') . ' GROUP BY prefix_tag ';
     $result = $xoopsDB->query($sql) or Utility::web_error($sql, __FILE__, __LINE__);
-    $main = '';
+    $main = [];
     while (list($prefix_tag, $count) = $xoopsDB->fetchRow($result)) {
         $main[$prefix_tag] = $count;
     }
