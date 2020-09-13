@@ -26,13 +26,13 @@ function list_tad_news($the_ncsn = '0', $kind = 'news', $show_uid = '')
     $tadnews->chk_user_cate_power('pass');
     $options = $tadnews->get_tad_news_cate_option(0, 0, '', true, '', '1');
 
+    $page = 'main.php';
+
     if (!empty($the_ncsn)) {
         $tadnews->set_view_ncsn($the_ncsn);
         if ('page' === $kind) {
             $tadnews->set_sort_tool(1);
             $page = 'page.php';
-        } else {
-            $page = 'main.php';
         }
     }
 
